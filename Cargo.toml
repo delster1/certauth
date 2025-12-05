@@ -1,0 +1,15 @@
+[package]
+name = "certauth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = { version = "0.8", features = ["std"] }
+curve25519-dalek = { version = "4.0", features = ["rand_core"] }
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+schnorr-rs = "0.2.0"
+sha2 = "0.10"
+thiserror = "1.0"

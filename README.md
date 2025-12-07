@@ -1,29 +1,28 @@
 ### authentication - rust
 - zero-trust auth with schnorr-based mutual authentication
-- non-interactive schnorr, using (u,c,z) to sign certificates in server
+- interactive schnorr to challenge knowledge of CA secret on each cert request
 	- certs:
 		- identity / hostname
 		-  perms
 		- expiration
 		- signature
+		- schnorr challenge
 - stateless CA, just receives cert and verifies
-- verification - client sends:
-    - certificate - signed by CA
-    - schnorr proof for cert's public key
-- verification - server responds:
-    - verifies schnorr proof 
-    - verifies certificate
-    - sends server certificate
-    - maybe issues session key? 
-- final verification - client recieves
-    - schnorr proof success
-    - certificate success
-    - server cert - performs verification
-- re-issue cert
-    - on cert expired, return to sender cert expired
-    - cancel entire auth procedure on sender & reciever
-    - sender asks for new cert from CA
-    - upon success, retry!
+- Certs:
+  	- Schnorr proof to verify rotating secret performed by both clients
+  - CA:
+  	- generates `sk_CA=x`, `pk_CA=g^x`
+    - issues `Cert_S` for a service `S` given `pk_S` and `sid_S`
+  - clients `C`:
+    - given `sk_C` and `cert_C` and request tosend
+      - Builds `msg_C` + `nonce_C` + `timestamp_C` including `pk_C`
+      - Generates schnorr signature `sig_C = (g^k, k + H(g^k || pk_C || M))` and includes in message headers
+    - given `pk_CA` and incoming request:
+      - verifies `Cert_C`
+        - rebuilds `msg_C`
+        - extract `pk_C` from `Cert_C`
+        - extract `sig_C` from headers
+        - verfies `sig_C` using `pk_C` & M: `e=H(g^k || pk_C || M`, `g^s == R & pk_C ^ e`
 towrite:
 -  CA:
     - private/public keygen
